@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">FlashNews</string>
+
+    <string name="empty_news">No news to show at the moment!</string>
+    <string name="no_internet">Seems like you are not connected to the internet. Please connect and try again</string>
+    <string name="server_error">We are currently having some problems with our server. Please check back later.</string>
+
+    <string name="author">- %1$s</string>
+    <string name="read_full">Read the full story here&#8230;</string>
+</resources>
