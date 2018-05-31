@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "716252658087",
+    "firebase_url": "https://flashnews-1527768151643.firebaseio.com",
+    "project_id": "flashnews-1527768151643",
+    "storage_bucket": "flashnews-1527768151643.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716252658087:android:5db12bb68de38bcf",
+        "android_client_info": {
+          "package_name": "com.ravi.flashnews"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "716252658087-ttm1gp909o9itpsddj340harku8jipo1.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "716252658087-mqdshb6b7ir1gdf17lh885uflfng2h8k.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "716252658087-82r2jhjd2d1ppptk4vj334l5bms47qd7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ravi.flashnews",
+            "certificate_hash": "1c9f1141bbc15f6ecd0397162374653942c1b9d0"
+          }
+        },
+        {
+          "client_id": "716252658087-ttm1gp909o9itpsddj340harku8jipo1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKy3G5x6EKBNFrWuM54I4bT5ya5h-m254"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "716252658087-ttm1gp909o9itpsddj340harku8jipo1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

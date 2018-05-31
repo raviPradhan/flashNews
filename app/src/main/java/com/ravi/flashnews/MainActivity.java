@@ -17,16 +17,25 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.pnikosis.materialishprogress.ProgressWheel;
 import com.ravi.flashnews.adapter.NewsAdapter;
 import com.ravi.flashnews.model.News;
 import com.ravi.flashnews.utils.HelperFunctions;
 import com.ravi.flashnews.utils.ItemClickListener;
 import com.ravi.flashnews.utils.JsonKeys;
+import com.ravi.flashnews.utils.MessageUtils;
 import com.ravi.flashnews.utils.NetworkUtils;
 
 import org.json.JSONArray;
@@ -40,7 +49,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<News>>,
-        ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+        ItemClickListener, SwipeRefreshLayout.OnRefreshListener, GoogleApiClient.OnConnectionFailedListener {
 
     @BindView(R.id.rv_main_newsRecycler)
     RecyclerView newsRecycler;
@@ -57,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private ArrayList<News> newsList;
     private NewsAdapter adapter;
-    private static final String BASE_URL = "https://newsapi.org/v2/top-headlines";
+    private GoogleApiClient mGoogleApiClient;
+    private boolean isClientConnected = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +78,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         setSupportActionBar(toolbar);
         toolbarTitle.setText(getString(R.string.app_name));
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
 
         newsList = new ArrayList<>();
         newsRecycler.setHasFixedSize(true);
@@ -103,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private Bundle getBundle() {
         Bundle bundle = new Bundle();
-        Uri builtUri = Uri.parse(BASE_URL)
+        Uri builtUri = Uri.parse("https://newsapi.org/v2/top-headlines")
                 .buildUpon()
                 .appendQueryParameter(JsonKeys.COUNTRY_KEY, "in")
                 .appendQueryParameter(JsonKeys.CATEGORY_KEY, "business")
@@ -116,7 +135,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @NonNull
     @Override
     public Loader<ArrayList<News>> onCreateLoader(int id, @Nullable Bundle args) {
-        return new NewsLoader(this, args.getString(JsonKeys.URL_KEY));
+        if (args != null) {
+            String urlString = args.getString(JsonKeys.URL_KEY);
+            return new NewsLoader(this, urlString);
+        }
+        throw new UnsupportedOperationException("The Url is not provided");
     }
 
     @Override
@@ -207,5 +230,48 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ViewCompat.getTransitionName(imageView));
 
         startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        MessageUtils.showCustomDialog(this,
+                getString(R.string.logout_label),
+                getString(R.string.yes),
+                getString(R.string.not_now),
+                new MessageUtils.DoubleDialogCallback() {
+                    @Override
+                    public void onOk(Context context) {
+                        if (isClientConnected) {
+                            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                                    new ResultCallback<Status>() {
+                                        @Override
+                                        public void onResult(@NonNull Status status) {
+                                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+                                    });
+                        } else {
+                            MessageUtils.showAlertDialog(context, getString(R.string.google_error));
+                        }
+                    }
+
+                    @Override
+                    public void onCancel(Context context) {
+                        // do nothing, dialog will be dismissed on its own
+                    }
+                });
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        isClientConnected = false;
     }
 }
