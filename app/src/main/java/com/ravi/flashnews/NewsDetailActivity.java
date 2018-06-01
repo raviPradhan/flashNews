@@ -1,28 +1,54 @@
 package com.ravi.flashnews;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ravi.flashnews.loaders.GetFavoritesLoader;
 import com.ravi.flashnews.model.News;
+import com.ravi.flashnews.provider.FavoritesContract;
 import com.ravi.flashnews.utils.JsonKeys;
+import com.ravi.flashnews.utils.MessageUtils;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewsDetailActivity extends AppCompatActivity {
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_AUTHOR;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_DESCRIPTION;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_FULL_URL;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_IMAGE_PATH;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_PUBLISHED_DATE;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_SOURCE;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_TITLE;
+import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.CONTENT_URI;
 
+public class NewsDetailActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+
+    @BindView(R.id.cl_details)
+    CoordinatorLayout coordinatorLayout;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     @BindView(R.id.iv_detail_image)
     ImageView image;
     @BindView(R.id.tv_detail_content)
@@ -35,6 +61,11 @@ public class NewsDetailActivity extends AppCompatActivity {
     TextView source;
     @BindView(R.id.tv_detail_url)
     TextView fullStory;
+    @BindView(R.id.fab_news_detail_favourite)
+    FloatingActionButton favButton;
+
+    private News newsItem;
+    private boolean isFavourite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +75,12 @@ public class NewsDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         supportPostponeEnterTransition();
 
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         Bundle extras = getIntent().getExtras();
-        final News newsItem = extras.getParcelable(JsonKeys.EXTRA_NEWS_ITEM);
+        newsItem = extras.getParcelable(JsonKeys.EXTRA_NEWS_ITEM);
         title.setText(newsItem.getTitle());
         content.setText(newsItem.getDescription());
         source.setText(getString(R.string.author, newsItem.getSourceName()));
@@ -74,13 +109,84 @@ public class NewsDetailActivity extends AppCompatActivity {
         wordtoSpan.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.colorIcons)),
                 0, 20, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         fullStory.setText(wordtoSpan);
+
+        favButton.setOnClickListener(this);
+        fullStory.setOnClickListener(this);
         fullStory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return new GetFavoritesLoader(this, newsItem.getTitle());
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() > 0) {
+            favButton.setImageResource(R.drawable.ic_favorite_filled);
+            isFavourite = true;
+        } else {
+            favButton.setImageResource(R.drawable.ic_favorite);
+            isFavourite = false;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_detail_url:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(newsItem.getFullUrl()));
                 startActivity(intent);
-            }
-        });
+                break;
+
+            case R.id.fab_news_detail_favourite:
+                if (isFavourite) {
+                    // Build appropriate uri with String row id appended to delete
+                    String stringId = newsItem.getTitle();
+                    Uri uri = FavoritesContract.FavoritesEntry.CONTENT_URI;
+                    uri = uri.buildUpon().appendPath(stringId).build();
+                    getContentResolver().delete(uri, null, null);
+                    favButton.setImageResource(R.drawable.ic_favorite);
+                    isFavourite = false;
+                } else {
+                    //            Adding news to favorites
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(COLUMN_TITLE, newsItem.getTitle());
+                    contentValues.put(COLUMN_AUTHOR, newsItem.getAuthor());
+                    contentValues.put(COLUMN_DESCRIPTION, newsItem.getDescription());
+                    contentValues.put(COLUMN_SOURCE, newsItem.getSourceName());
+                    contentValues.put(COLUMN_IMAGE_PATH, newsItem.getImageUrl());
+                    contentValues.put(COLUMN_FULL_URL, newsItem.getFullUrl());
+                    contentValues.put(COLUMN_PUBLISHED_DATE, newsItem.getPublishedDate());
+                    try {
+                        // Insert the content values via a ContentResolver
+                        getContentResolver().insert(CONTENT_URI, contentValues);
+                        favButton.setImageResource(R.drawable.ic_favorite_filled);
+                        isFavourite = true;
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        MessageUtils.showSnackMessage(coordinatorLayout, ex.getMessage());
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
     }
 }

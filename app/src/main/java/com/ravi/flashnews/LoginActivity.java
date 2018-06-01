@@ -92,6 +92,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             Log.e(JsonKeys.TAG, "Name: " + personName + ", email: " + email
                     + ", Image: " + personPhotoUrl);
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
         } else {
             // Signed out, show unauthenticated UI.
         }

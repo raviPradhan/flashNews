@@ -34,6 +34,11 @@
         <activity
             android:name=".NewsDetailActivity"
             android:screenOrientation="portrait" />
+
+        <provider
+            android:name="com.ravi.flashnews.provider.FavoritesProvider"
+            android:authorities="com.ravi.flashnews"
+            android:exported="false" />
     </application>
 
 </manifest>
