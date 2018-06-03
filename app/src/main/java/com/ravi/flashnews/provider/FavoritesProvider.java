@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.ravi.flashnews.utils.JsonKeys;
 
 import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_TITLE;
 import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.CONTENT_URI;
@@ -35,7 +38,7 @@ public class FavoritesProvider extends ContentProvider {
           The two calls below add matches for the FAVORITES directory and a single item by ID.
          */
         uriMatcher.addURI(FavoritesContract.AUTHORITY, FavoritesContract.PATH_FAVORITES, FAVORITES);
-        uriMatcher.addURI(FavoritesContract.AUTHORITY, FavoritesContract.PATH_FAVORITES + "/#", FAVORITE_WITH_TITLE);
+        uriMatcher.addURI(FavoritesContract.AUTHORITY, FavoritesContract.PATH_FAVORITES + "/*", FAVORITE_WITH_TITLE);
 
         return uriMatcher;
     }
@@ -68,6 +71,7 @@ public class FavoritesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                Log.e(JsonKeys.TAG, "Cursor Size " + retCursor.getCount());
                 break;
 
             // Default exception
@@ -120,13 +124,13 @@ public class FavoritesProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         // Keep track of the number of deleted favourites
         int tasksDeleted; // starts as 0
-
         switch (match) {
             // Handle the single item case, recognized by the ID included in the URI path
             case FAVORITE_WITH_TITLE:
                 // Get the movie ID from the URI path
                 String title = uri.getPathSegments().get(1);
                 tasksDeleted = db.delete(TABLE_NAME, COLUMN_TITLE + "=?", new String[]{title});
+                Log.e(JsonKeys.TAG, uri.getPathSegments().get(1) + " " + tasksDeleted);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

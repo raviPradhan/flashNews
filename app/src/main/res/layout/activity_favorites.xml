@@ -2,35 +2,28 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cl_main"
+    android:id="@+id/cl_fav"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".FavoritesActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <include layout="@layout/toolbar" />
+        <include layout="@layout/center_toolbar" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/srl_main_refreshLayout"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_fav_newsRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_main_newsRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.pnikosis.materialishprogress.ProgressWheel
-        android:id="@+id/pb_main_progress"
+        android:id="@+id/pb_fav_progress"
         android:layout_width="52dp"
         android:layout_height="52dp"
         android:layout_gravity="center"
@@ -39,7 +32,7 @@
         app:matProg_progressIndeterminate="true" />
 
     <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/tv_main_emptyText"
+        android:id="@+id/tv_fav_emptyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -49,6 +42,6 @@
         android:textColor="@color/colorSecondaryText"
         android:textSize="@dimen/text14"
         android:visibility="gone"
-        tools:text="No news to show at the moment!" />
+        tools:text="@string/empty_favorites" />
 
 </android.support.design.widget.CoordinatorLayout>

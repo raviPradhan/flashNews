@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -43,7 +44,8 @@ import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUM
 import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.COLUMN_TITLE;
 import static com.ravi.flashnews.provider.FavoritesContract.FavoritesEntry.CONTENT_URI;
 
-public class NewsDetailActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class NewsDetailActivity extends AppCompatActivity implements View.OnClickListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     @BindView(R.id.cl_details)
     CoordinatorLayout coordinatorLayout;
@@ -80,44 +82,43 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Bundle extras = getIntent().getExtras();
-        newsItem = extras.getParcelable(JsonKeys.EXTRA_NEWS_ITEM);
-        title.setText(newsItem.getTitle());
-        content.setText(newsItem.getDescription());
-        source.setText(getString(R.string.author, newsItem.getSourceName()));
-        publishedDate.setText(newsItem.getPublishedDate());
+        if (extras != null) {
+            newsItem = extras.getParcelable(JsonKeys.EXTRA_NEWS_ITEM);
+            title.setText(newsItem.getTitle());
+            content.setText(newsItem.getDescription());
+            source.setText(getString(R.string.author, newsItem.getSourceName()));
+            publishedDate.setText(newsItem.getPublishedDate());
 
-        String imageUrl = newsItem.getImageUrl();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            String imageTransitionName = extras.getString(JsonKeys.EXTRA_NEWS_IMAGE_TRANSITION_NAME);
-            image.setTransitionName(imageTransitionName);
-        }
-        Picasso.get()
-                .load(imageUrl)
-                .noFade()
-                .into(image, new Callback() {
-                    @Override
-                    public void onError(Exception e) {
-                        supportStartPostponedEnterTransition();
-                    }
-
-                    @Override
-                    public void onSuccess() {
-                        supportStartPostponedEnterTransition();
-                    }
-                });
-        Spannable wordtoSpan = new SpannableString(getString(R.string.read_full));
-        wordtoSpan.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.colorIcons)),
-                0, 20, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        fullStory.setText(wordtoSpan);
-
-        favButton.setOnClickListener(this);
-        fullStory.setOnClickListener(this);
-        fullStory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
+            String imageUrl = newsItem.getImageUrl();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                String imageTransitionName = extras.getString(JsonKeys.EXTRA_NEWS_IMAGE_TRANSITION_NAME);
+                image.setTransitionName(imageTransitionName);
             }
-        });
+            Picasso.get()
+                    .load(imageUrl)
+                    .noFade()
+                    .into(image, new Callback() {
+                        @Override
+                        public void onError(Exception e) {
+                            supportStartPostponedEnterTransition();
+                        }
+
+                        @Override
+                        public void onSuccess() {
+                            supportStartPostponedEnterTransition();
+                        }
+                    });
+            Spannable wordtoSpan = new SpannableString(getString(R.string.read_full));
+            wordtoSpan.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.colorIcons)),
+                    0, 20, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            fullStory.setText(wordtoSpan);
+
+            favButton.setOnClickListener(this);
+            fullStory.setOnClickListener(this);
+            getSupportLoaderManager().initLoader(100, null, this);
+        } else {
+            MessageUtils.showAlertDialogWithFinish(this, getString(R.string.details_error));
+        }
     }
 
     @NonNull
@@ -157,9 +158,18 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                     String stringId = newsItem.getTitle();
                     Uri uri = FavoritesContract.FavoritesEntry.CONTENT_URI;
                     uri = uri.buildUpon().appendPath(stringId).build();
-                    getContentResolver().delete(uri, null, null);
-                    favButton.setImageResource(R.drawable.ic_favorite);
-                    isFavourite = false;
+                    try {
+                        if (getContentResolver().delete(uri, null, null) > 0) {
+                            favButton.setImageResource(R.drawable.ic_favorite);
+                            isFavourite = false;
+                        } else {
+                            MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
+                        }
+                    } catch (UnsupportedOperationException uex) {
+                        uex.printStackTrace();
+                        MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
+                    }
+
                 } else {
                     //            Adding news to favorites
                     ContentValues contentValues = new ContentValues();
@@ -172,12 +182,15 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                     contentValues.put(COLUMN_PUBLISHED_DATE, newsItem.getPublishedDate());
                     try {
                         // Insert the content values via a ContentResolver
-                        getContentResolver().insert(CONTENT_URI, contentValues);
-                        favButton.setImageResource(R.drawable.ic_favorite_filled);
-                        isFavourite = true;
+                        if (getContentResolver().insert(CONTENT_URI, contentValues) != null) {
+                            favButton.setImageResource(R.drawable.ic_favorite_filled);
+                            isFavourite = true;
+                        } else {
+                            MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        MessageUtils.showSnackMessage(coordinatorLayout, ex.getMessage());
+                        MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
                     }
                 }
                 break;
@@ -185,8 +198,36 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_details, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
+            case R.id.action_share:
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.download));
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+                        getString(R.string.concat_three_strings,
+                                newsItem.getTitle(),
+                                newsItem.getFullUrl(),
+                                getString(R.string.share_text)));
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                break;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        favButton.setVisibility(View.GONE);
+        super.onBackPressed();
     }
 }

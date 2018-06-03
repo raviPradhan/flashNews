@@ -16,6 +16,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.ravi.flashnews.utils.JsonKeys;
+import com.ravi.flashnews.utils.MessageUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,6 +97,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             finish();
         } else {
             // Signed out, show unauthenticated UI.
+            MessageUtils.showAlertDialog(this, getString(R.string.google_error));
         }
     }
 

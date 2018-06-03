@@ -32,6 +32,10 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".FavoritesActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".NewsDetailActivity"
             android:screenOrientation="portrait" />
 

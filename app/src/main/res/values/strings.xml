@@ -9,6 +9,8 @@
     <string name="welcome">WELCOME</string>
     <string name="loading">Loading&#8230;</string>
     <string name="logout">Log Out</string>
+    <string name="share">Share</string>
+    <string name="favorites">Favourites</string>
     <string name="logout_label">Are you sure you want to log out of the app?</string>
     <string name="yes">Yes</string>
     <string name="not_now">Not Now</string>
@@ -18,10 +20,17 @@
     <!--Messages-->
     <string name="google_error">There was some problem connecting to google server. Please try again later</string>
     <string name="empty_news">No news to show at the moment!</string>
+    <string name="empty_favorites">You have not added any news to your favorites.</string>
     <string name="no_internet">Seems like you are not connected to the internet. Please connect and try again</string>
     <string name="server_error">We are currently having some problems with our server. Please check back later.</string>
+    <string name="favourites_removal_error">Some problem occurred trying to remove the news from your favourites.</string>
+    <string name="favourites_add_error">Some problem occurred trying to add the news to your favourites.</string>
+    <string name="details_error">There was some problem trying to fetch the details of this news. Please try again later.</string>
 
 
     <!--Dynamic Texts-->
+    <string name="share_text">Get in touch with the world! Download Flash News NOW!!</string>
+    <string name="concat_three_strings">%1$s %2$s %3$s</string>
+    <string name="download">Download Flash News</string>
     <string name="author">- %1$s</string>
 </resources>

@@ -240,33 +240,41 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        MessageUtils.showCustomDialog(this,
-                getString(R.string.logout_label),
-                getString(R.string.yes),
-                getString(R.string.not_now),
-                new MessageUtils.DoubleDialogCallback() {
-                    @Override
-                    public void onOk(Context context) {
-                        if (isClientConnected) {
-                            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                                    new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(@NonNull Status status) {
-                                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                        }
-                                    });
-                        } else {
-                            MessageUtils.showAlertDialog(context, getString(R.string.google_error));
-                        }
-                    }
+        switch (item.getItemId()){
+            case R.id.action_logout:
+                MessageUtils.showCustomDialog(this,
+                        getString(R.string.logout_label),
+                        getString(R.string.yes),
+                        getString(R.string.not_now),
+                        new MessageUtils.DoubleDialogCallback() {
+                            @Override
+                            public void onOk(Context context) {
+                                if (isClientConnected) {
+                                    Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                                            new ResultCallback<Status>() {
+                                                @Override
+                                                public void onResult(@NonNull Status status) {
+                                                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                } else {
+                                    MessageUtils.showAlertDialog(context, getString(R.string.google_error));
+                                }
+                            }
 
-                    @Override
-                    public void onCancel(Context context) {
-                        // do nothing, dialog will be dismissed on its own
-                    }
-                });
+                            @Override
+                            public void onCancel(Context context) {
+                                // do nothing, dialog will be dismissed on its own
+                            }
+                        });
+                break;
+
+            case R.id.action_favorites:
+                startActivity(new Intent(this, FavoritesActivity.class));
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
