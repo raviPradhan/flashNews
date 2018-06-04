@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,13 +15,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -31,19 +35,16 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.pnikosis.materialishprogress.ProgressWheel;
 import com.ravi.flashnews.adapter.NewsAdapter;
+import com.ravi.flashnews.background.NewsJobService;
+import com.ravi.flashnews.loaders.NewsLoader;
 import com.ravi.flashnews.model.News;
-import com.ravi.flashnews.utils.HelperFunctions;
 import com.ravi.flashnews.utils.ItemClickListener;
 import com.ravi.flashnews.utils.JsonKeys;
 import com.ravi.flashnews.utils.MessageUtils;
 import com.ravi.flashnews.utils.NetworkUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -68,6 +69,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private NewsAdapter adapter;
     private GoogleApiClient mGoogleApiClient;
     private boolean isClientConnected = true;
+
+    private static final int JOB_INTERVAL_MINUTES = 3;
+    private static final int JOB_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(JOB_INTERVAL_MINUTES));
+    private static final int SYNC_FLEXTIME_SECONDS = JOB_INTERVAL_SECONDS;
+    private static final String NEWS_JOB_TAG = "news_tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +104,58 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         startLoader();
 
         refreshLayout.setOnRefreshListener(this);
+
+        startJob();
+    }
+
+    private void startJob() {
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
+        Job myJob = dispatcher.newJobBuilder()
+                // the JobService that will be called
+                .setService(NewsJobService.class)
+                // uniquely identifies the job
+                .setTag(NEWS_JOB_TAG)
+                /*
+                 * Network constraints on which this Job should run. In this app, we're using the
+                 * ON_ANY_NETWORK constraint so that the job executes if the device is
+                 * connected to any network.
+                 *
+                 * In a normal app, it might be a good idea to include a preference for this,
+                 * as different users may have different preferences on when you should be
+                 * syncing your application's data.
+                 */
+                .setConstraints(
+                        //run on any network
+                        Constraint.ON_ANY_NETWORK
+                )
+                /*
+                 * We want this to continuously happen, so we tell this Job to recur.
+                 */
+                .setRecurring(true)
+                /*
+                 * setLifetime sets how long this job should persist. The options are to keep the
+                 * Job "forever" or to have it die the next time the device boots up.
+                 */
+                .setLifetime(Lifetime.FOREVER)
+                /*
+                 * We want the job to happen every 15 minutes or so. The first argument for
+                 * Trigger class's static executionWindow method is the start of the time frame
+                 * when the
+                 * job should be performed. The second argument is the latest point in time at
+                 * which the data should be synced. Please note that this end time is not
+                 * guaranteed, but is more of a guideline for FirebaseJobDispatcher to go off of.
+                 */
+                .setTrigger(Trigger.executionWindow(JOB_INTERVAL_SECONDS,
+                        JOB_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                /*
+                 * If a Job with the tag with provided already exists, this new job will replace
+                 * the old one.
+                 */
+                .setReplaceCurrent(true)
+                /* Once the Job is ready, call the builder's build method to return the Job */
+                .build();
+        /* Schedule the Job with the dispatcher */
+        dispatcher.schedule(myJob);
     }
 
     @Override
@@ -107,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void startLoader() {
+        emptyText.setVisibility(View.GONE);
         if (NetworkUtils.isInternetConnected(this)) {
             getSupportLoaderManager().restartLoader(1, getBundle(), this);
         } else {
@@ -163,60 +222,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    private static class NewsLoader extends AsyncTaskLoader<ArrayList<News>> {
-        private ArrayList<News> resultList;
-        private String url;
-
-        NewsLoader(Context context, String url) {
-            super(context);
-            this.url = url;
-        }
-
-        @Override
-        protected void onStartLoading() {
-            if (resultList != null)
-                deliverResult(resultList);
-            else
-                forceLoad();
-        }
-
-        @Override
-        public ArrayList<News> loadInBackground() {
-            try {
-                String response = NetworkUtils.getJson(url);
-                Log.e(JsonKeys.TAG, response);
-                JSONObject jsonResponse = new JSONObject(response);
-                ArrayList<News> list = new ArrayList<>();
-                if (HelperFunctions.isValidResponse(jsonResponse)) {
-                    JSONArray dataArray = jsonResponse.getJSONArray(JsonKeys.ARTICLES_KEY);
-                    for (int i = 0; i < dataArray.length(); i++) {
-                        News news = new News();
-                        JSONObject dataObject = dataArray.getJSONObject(i);
-                        news.setSourceName(dataObject.getJSONObject(JsonKeys.SOURCE_KEY).getString(JsonKeys.NAME_KEY));
-                        news.setTitle(dataObject.getString(JsonKeys.TITLE_KEY));
-                        news.setAuthor(dataObject.getString(JsonKeys.AUTHOR_KEY));
-                        news.setDescription(dataObject.getString(JsonKeys.DESCRIPTION_KEY));
-                        news.setFullUrl(dataObject.getString(JsonKeys.URL_KEY));
-                        news.setImageUrl(dataObject.getString(JsonKeys.IMAGE_URL_KEY));
-                        news.setPublishedDate(HelperFunctions.getViewableDate(dataObject.getString(JsonKeys.PUBLISHED_AT_KEY)));
-                        list.add(news);
-                    }
-                    return list;
-                }
-            } catch (IOException ioEx) {
-                ioEx.printStackTrace();
-            } catch (JSONException jex) {
-                jex.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        public void deliverResult(@Nullable ArrayList<News> data) {
-            resultList = data;
-            super.deliverResult(data);
-        }
-    }
 
     @Override
     public void onItemClick(int position, News newsItem, ImageView imageView) {
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_logout:
                 MessageUtils.showCustomDialog(this,
                         getString(R.string.logout_label),
