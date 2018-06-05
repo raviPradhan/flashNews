@@ -4,6 +4,7 @@
     <string name="app_name">FlashNews</string>
     <string name="logo_credit">Logo made with https://www.designevo.com/</string>
     <string name="notification_image">Image for notification</string>
+    <string name="widget_image">Image for widget</string>
 
 
     <!-- Labels -->
