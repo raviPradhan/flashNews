@@ -12,6 +12,8 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "API_KEY", API_KEY)
+        buildConfigField("String", "AD_MOB_KEY", AD_MOB_KEY)
+        buildConfigField("String", "INTERSTITIAL_AD_KEY", INTERSTITIAL_AD_KEY)
     }
     buildTypes {
         release {
@@ -31,6 +33,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     testImplementation 'junit:junit:4.12'

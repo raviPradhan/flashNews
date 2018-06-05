@@ -15,11 +15,13 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.ravi.flashnews.MainActivity;
 import com.ravi.flashnews.R;
-import com.ravi.flashnews.SplashActivity;
 import com.ravi.flashnews.model.News;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
+import java.util.ArrayList;
 
 public class NotificationUtils {
 
@@ -31,10 +33,19 @@ public class NotificationUtils {
     private static final int NEWS_NOTIFICATION_ID = 1138;
     private static final String NOTIFICATION_CHANNEL_ID = "NEWS_CH_ID";
 
-    public static void generateNotificationLayout(final Context context, final News news) {
-        if (news != null) {
-            Log.e(JsonKeys.TAG, "Notification layout " + news.getTitle());
+    public static void generateNotificationLayout(final Context context, ArrayList<News> newsList) {
+        if (newsList != null) {
+
+            Intent intent = new Intent(context, MainActivity.class);
+            // pass the news list to the main activity when notification is clicked
+            intent.putExtra(JsonKeys.ARTICLES_KEY, newsList);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            // Create the pending intent to launch the activity
+            final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
+                    PendingIntent.FLAG_ONE_SHOT);
+
             final RemoteViews contentView = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
+            final News news = newsList.get(0);
             Picasso.get()
                     .load(news.getImageUrl())
                     .into(new Target() {
@@ -43,12 +54,12 @@ public class NotificationUtils {
                             contentView.setImageViewBitmap(R.id.iv_notification_image, bitmap);
                             contentView.setTextViewText(R.id.tv_notification_title, news.getTitle());
                             contentView.setTextViewText(R.id.tv_notification_date, news.getPublishedDate());
-                            generateNotification(context, contentView);
+                            generateNotification(context, contentView, pendingIntent);
                         }
 
                         @Override
                         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                            generateNotification(context, contentView);
+                            generateNotification(context, contentView, pendingIntent);
                         }
 
                         @Override
@@ -61,7 +72,7 @@ public class NotificationUtils {
         }
     }
 
-    private static void generateNotification(Context context, RemoteViews customView) {
+    private static void generateNotification(Context context, RemoteViews customView, PendingIntent pendingIntent) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Log.e(JsonKeys.TAG, "Notification generation initiated");
         // The user-visible name of the channel.
@@ -77,12 +88,6 @@ public class NotificationUtils {
             notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             notificationManager.createNotificationChannel(notificationChannel);
         }
-
-        Intent intent = new Intent(context, SplashActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        // Create the pending intent to launch the activity
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))

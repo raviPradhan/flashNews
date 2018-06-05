@@ -8,6 +8,8 @@ import com.ravi.flashnews.loaders.BackgroundAsyncTask;
 import com.ravi.flashnews.model.News;
 import com.ravi.flashnews.utils.NotificationUtils;
 
+import java.util.ArrayList;
+
 public class NewsJobService extends JobService {
 
     private BackgroundAsyncTask mBackgroundTask;
@@ -26,7 +28,7 @@ public class NewsJobService extends JobService {
         // Here's where we make an AsyncTask so that this is no longer on the main thread
         mBackgroundTask = new BackgroundAsyncTask(new JobCallback() {
             @Override
-            public void resultCallback(News news) {
+            public void resultCallback(ArrayList<News> news) {
                 Context context = NewsJobService.this;
                 // Prepare to show notification
                 NotificationUtils.generateNotificationLayout(context, news);
@@ -49,7 +51,7 @@ public class NewsJobService extends JobService {
     }
 
     public interface JobCallback {
-        void resultCallback(News news);
+        void resultCallback(ArrayList<News> news);
     }
 
     /**

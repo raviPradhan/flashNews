@@ -2,6 +2,7 @@ package com.ravi.flashnews.utils;
 
 public class JsonKeys {
     public static final String TAG = "newsFlash";
+    public static final String CACHE_KEY = "news_cache";
     public static final String SOURCE_KEY = "source";
     public static final String OK_KEY = "ok";
     public static final String STATUS_KEY = "status";
@@ -12,6 +13,7 @@ public class JsonKeys {
     public static final String DESCRIPTION_KEY = "description";
     public static final String URL_KEY = "url";
     public static final String IMAGE_URL_KEY = "urlToImage";
+    public static final String TO_SHOW_AD = "adShowCount";
     public static final String PUBLISHED_AT_KEY = "publishedAt";
     public static final String COUNTRY_KEY = "country";
     public static final String CATEGORY_KEY = "business";

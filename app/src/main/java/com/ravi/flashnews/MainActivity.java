@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,9 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -42,6 +46,7 @@ import com.ravi.flashnews.utils.ItemClickListener;
 import com.ravi.flashnews.utils.JsonKeys;
 import com.ravi.flashnews.utils.MessageUtils;
 import com.ravi.flashnews.utils.NetworkUtils;
+import com.ravi.flashnews.utils.PreferenceUtils;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int SYNC_FLEXTIME_SECONDS = JOB_INTERVAL_SECONDS;
     private static final String NEWS_JOB_TAG = "news_tag";
 
+    private InterstitialAd mInterstitialAd;
+    private PreferenceUtils preferenceUtils;
+    private boolean isResumed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         setSupportActionBar(toolbar);
         toolbarTitle.setText(getString(R.string.app_name));
+
+        preferenceUtils = new PreferenceUtils(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -100,11 +111,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         adapter = new NewsAdapter(newsList, this);
         newsRecycler.setAdapter(adapter);
 
-        progress.setVisibility(View.VISIBLE);
+        if (getIntent().getExtras() != null) {
+            // if news list is set in extras
+            // mostly coming from notification
+            newsList.addAll(getIntent().<News>getParcelableArrayListExtra(JsonKeys.ARTICLES_KEY));
+            adapter.notifyDataSetChanged();
+        } else {
+            progress.setVisibility(View.VISIBLE);
+        }
         startLoader();
-
         refreshLayout.setOnRefreshListener(this);
 
+        loadAd();
         startJob();
     }
 
@@ -222,11 +240,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    private void loadAd() {
+        // Create an ad request. Check logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                // Load the next interstitial.
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+        });
+    }
 
     @Override
-    public void onItemClick(int position, News newsItem, ImageView imageView) {
+    public void onItemClick(int position, News news, ImageView imageView) {
         Intent intent = new Intent(this, NewsDetailActivity.class);
-        intent.putExtra(JsonKeys.EXTRA_NEWS_ITEM, newsItem);
+        intent.putExtra(JsonKeys.EXTRA_NEWS_ITEM, news);
         intent.putExtra(JsonKeys.EXTRA_NEWS_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(imageView));
 
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -235,6 +268,29 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ViewCompat.getTransitionName(imageView));
 
         startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int count = preferenceUtils.getIntData(JsonKeys.TO_SHOW_AD);
+        // increment the number of times the app has opened its main activity
+        preferenceUtils.setData(JsonKeys.TO_SHOW_AD, ++count);
+        Log.e(JsonKeys.TAG, "" + count);
+        if (isResumed) {
+            if (mInterstitialAd.isLoaded()) {
+                /* show add if loaded and the count is exactly divisible by 5
+                 * this shows ad after every 5 resumes of the app as the count is being incremented twice
+                 * in every resume. This logic can be changed any time accordingly
+                 * */
+                if (count % 5 == 0)
+                    mInterstitialAd.show();
+            } else {
+                MessageUtils.showToast(this, "The advertisement could not be loaded.");
+            }
+            isResumed = false;
+        } else
+            isResumed = true;
     }
 
     @Override
