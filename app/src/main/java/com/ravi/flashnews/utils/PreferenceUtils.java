@@ -19,6 +19,16 @@ public class PreferenceUtils {
         editor.apply();
     }
 
+    public void setData(String key, String value) {
+        editor = sharedPref.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
+    public String getData(String key){
+        return sharedPref.getString(key, null);
+    }
+
     public int getIntData(String key) {
         return sharedPref.getInt(key, 0);
     }

@@ -18,10 +18,13 @@ import android.widget.RemoteViews;
 import com.ravi.flashnews.MainActivity;
 import com.ravi.flashnews.R;
 import com.ravi.flashnews.model.News;
+import com.ravi.flashnews.widget.WidgetUpdateService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
+
+import static java.security.AccessController.getContext;
 
 public class NotificationUtils {
 
@@ -55,6 +58,8 @@ public class NotificationUtils {
                             contentView.setTextViewText(R.id.tv_notification_title, news.getTitle());
                             contentView.setTextViewText(R.id.tv_notification_date, news.getPublishedDate());
                             generateNotification(context, contentView, pendingIntent);
+                            //TODO: Save the first news coming here in preferences in order to show the news in the widget
+                            WidgetUpdateService.startActionUpdateNewsWidget(context);
                         }
 
                         @Override

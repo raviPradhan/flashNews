@@ -3,6 +3,7 @@ package com.ravi.flashnews.widget;
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
@@ -12,6 +13,19 @@ public class WidgetUpdateService extends IntentService {
 
     public WidgetUpdateService() {
         super("WidgetUpdateService");
+    }
+
+    /**
+     * Starts this service to perform UpdatePlantWidgets action with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     *
+     * @see IntentService
+     */
+    public static void startActionUpdateNewsWidget(Context context) {
+//        Log.v(Constants.TAG, "startActionUpdateRecipeWidget()");
+        Intent intent = new Intent(context, WidgetUpdateService.class);
+        intent.setAction(ACTION_UPDATE_WIDGET);
+        context.startService(intent);
     }
 
     @Override

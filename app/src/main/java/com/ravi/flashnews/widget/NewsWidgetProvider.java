@@ -5,12 +5,16 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.widget.RemoteViews;
 
 import com.ravi.flashnews.MainActivity;
 import com.ravi.flashnews.R;
 import com.ravi.flashnews.utils.JsonKeys;
 import com.ravi.flashnews.utils.PreferenceUtils;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 public class NewsWidgetProvider extends AppWidgetProvider {
 
@@ -18,7 +22,7 @@ public class NewsWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         //Start the intent service update widget action, the service takes care of updating the widgets UI
 //        Log.v(Constants.TAG, "Updating widget provider onUpdate()");
-        WidgetUpdateService.startActionUpdateRecipeWidget(context);
+        WidgetUpdateService.startActionUpdateNewsWidget(context);
     }
 
     static void updateNewsWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -30,32 +34,46 @@ public class NewsWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 //        Log.v(Constants.TAG, "updateAppWidget()");
-        RemoteViews rv = getRecipeListRemoteView(context);
+        RemoteViews rv = getNewsRemoteView(context);
         appWidgetManager.updateAppWidget(appWidgetId, rv);
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.lv_widget_ingredientsList);
     }
 
     /**
-     * Creates and returns the RemoteViews to be displayed in the ListView widget
+     * Creates and returns the RemoteView to be displayed in the widget
      *
      * @param context The context
      * @return The RemoteViews for the ListView widget
      */
-    private static RemoteViews getRecipeListRemoteView(Context context) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.news_widget);
-        // Set the ListWidgetService intent to act as the adapter for the ListView
-        PreferenceUtils pref = new PreferenceUtils(context);
-        views.setTextViewText(R.id.tv_widget_title, pref.getStringData(JsonKeys.TITLE_KEY));
-        views.setTextViewText(R.id.tv_widget_date, pref.getStringData(JsonKeys.PUBLISHED_AT_KEY));
-        Intent intent = new Intent(context, ListWidgetService.class);
-        views.setRemoteAdapter(R.id.lv_widget_ingredientsList, intent);
-        // Set the PendingIntent template in getRecipeListRemoteView to launch MainActivity
-        // Set the MainActivity intent to launch when clicked
+    private static RemoteViews getNewsRemoteView(final Context context) {
+        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.news_widget);
+        final PreferenceUtils pref = new PreferenceUtils(context);
+        Picasso.get()
+                .load(pref.getData(JsonKeys.IMAGE_URL_KEY))
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                        views.setImageViewBitmap(R.id.iv_notification_image, bitmap);
+                        views.setTextViewText(R.id.tv_widget_title, pref.getData(JsonKeys.TITLE_KEY));
+                        views.setTextViewText(R.id.tv_widget_date, pref.getData(JsonKeys.PUBLISHED_AT_KEY));
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
         Intent appIntent = new Intent(context, MainActivity.class);
-        PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setPendingIntentTemplate(R.id.lv_widget_ingredientsList, appPendingIntent);
-        // Handle empty recipe
-        views.setEmptyView(R.id.lv_widget_ingredientsList, R.id.empty_view);
+        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent appPendingIntent = PendingIntent.getActivity(context,
+                0,
+                appIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.rl_widget_parent, appPendingIntent);
         return views;
     }
 
