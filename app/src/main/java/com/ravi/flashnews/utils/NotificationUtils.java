@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,13 +20,11 @@ import android.widget.RemoteViews;
 import com.ravi.flashnews.MainActivity;
 import com.ravi.flashnews.R;
 import com.ravi.flashnews.model.News;
-import com.ravi.flashnews.widget.WidgetUpdateService;
+import com.ravi.flashnews.widget.NewsWidgetProvider;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-
-import static java.security.AccessController.getContext;
 
 public class NotificationUtils {
 
@@ -58,8 +58,19 @@ public class NotificationUtils {
                             contentView.setTextViewText(R.id.tv_notification_title, news.getTitle());
                             contentView.setTextViewText(R.id.tv_notification_date, news.getPublishedDate());
                             generateNotification(context, contentView, pendingIntent);
-                            //TODO: Save the first news coming here in preferences in order to show the news in the widget
-                            WidgetUpdateService.startActionUpdateNewsWidget(context);
+                            // Save the first news in preferences
+                            PreferenceUtils pu = new PreferenceUtils(context);
+                            pu.setData(JsonKeys.IMAGE_URL_KEY, news.getImageUrl());
+                            pu.setData(JsonKeys.TITLE_KEY, news.getTitle());
+                            pu.setData(JsonKeys.PUBLISHED_AT_KEY, news.getPublishedDate());
+                            // update the news in the widget
+                            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+                            int[] appWidgetIds = appWidgetManager.
+                                    getAppWidgetIds(
+                                            new ComponentName(context, NewsWidgetProvider.class));
+                            Log.e(JsonKeys.TAG, "updating widget after new data pulled");
+                            NewsWidgetProvider.updateNewsWidgets(context, appWidgetManager, appWidgetIds);
+//                            WidgetUpdateService.startActionUpdateNewsWidget(context);
                         }
 
                         @Override

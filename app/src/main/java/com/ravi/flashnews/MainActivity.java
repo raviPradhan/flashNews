@@ -1,5 +1,7 @@
 package com.ravi.flashnews;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -47,6 +49,7 @@ import com.ravi.flashnews.utils.JsonKeys;
 import com.ravi.flashnews.utils.MessageUtils;
 import com.ravi.flashnews.utils.NetworkUtils;
 import com.ravi.flashnews.utils.PreferenceUtils;
+import com.ravi.flashnews.widget.NewsWidgetProvider;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -229,10 +232,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 newsList.clear();
                 newsList.addAll(data);
                 adapter.notifyDataSetChanged();
+                // update widget data
+                updateWidget(newsList.get(0));
             }
         } else {
             showMessage(getString(R.string.server_error));
         }
+    }
+
+    private void updateWidget(News item) {
+        // update the news in the widget
+        preferenceUtils.setData(JsonKeys.TITLE_KEY, item.getTitle());
+        preferenceUtils.setData(JsonKeys.PUBLISHED_AT_KEY, item.getPublishedDate());
+        preferenceUtils.setData(JsonKeys.IMAGE_URL_KEY, item.getImageUrl());
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        int[] appWidgetIds = appWidgetManager.
+                getAppWidgetIds(
+                        new ComponentName(this, NewsWidgetProvider.class));
+        Log.e(JsonKeys.TAG, "updating widget from main activity");
+        NewsWidgetProvider.updateNewsWidgets(this, appWidgetManager, appWidgetIds);
     }
 
     @Override
