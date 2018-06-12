@@ -181,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onRefresh() {
+        if (newsList.isEmpty())
+            progress.setVisibility(View.VISIBLE);
+
         refreshLayout.setRefreshing(false);
         startLoader();
     }

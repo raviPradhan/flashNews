@@ -13,8 +13,8 @@ import java.net.URL;
 
 public class NetworkUtils {
 
-    static final int TIMEOUT_CONNECTION = 30000;
-    static final int TIMEOUT_SOCKET = 30000;
+    private static final int TIMEOUT_CONNECTION = 10000;
+    private static final int TIMEOUT_SOCKET = 10000;
 
     public static boolean isInternetConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
