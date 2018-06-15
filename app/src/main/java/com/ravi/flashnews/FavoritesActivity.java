@@ -79,11 +79,10 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
             if (adapter == null) { // if adapter for favorites was not created before
                 adapter = new FavoritesAdapter(this);
                 favRecycler.setAdapter(adapter);
+                Log.e(JsonKeys.TAG, "new adapter data");
                 adapter.swapCursor(data);
             } else {
-                // if adapter for favorites was created before change the adapter
-                // to the cursorAdapter
-                favRecycler.setAdapter(adapter);
+                Log.e(JsonKeys.TAG, "refreshing data");
                 adapter.swapCursor(data);
             }
         }

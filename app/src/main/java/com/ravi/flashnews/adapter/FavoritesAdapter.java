@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.ravi.flashnews.R;
 import com.ravi.flashnews.model.News;
 import com.ravi.flashnews.utils.ItemClickListener;
+import com.ravi.flashnews.utils.JsonKeys;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -91,26 +93,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
                 callback.onItemClick(adapterPosition, news, holder.image);
             }
         });
-
-        /*holder.title.setText(mCursor.getString(mCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_TITLE)));
-        holder.publishedDate.setText(mCursor.getString(mCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_PUBLISHED_DATE)));
-        holder.source.setText(mCursor.getString(mCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_SOURCE)));
-
-        Picasso.get()
-                .load(mCursor.getString(mCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_IMAGE_PATH)))
-                .into(holder.image);
-
-        ViewCompat.setTransitionName(holder.image,
-                mCursor.getString(mCursor.getColumnIndex(FavoritesContract.FavoritesEntry.COLUMN_TITLE)));
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e(JsonKeys.TAG, "click position: " + adapterPosition + " title: " + mCursor.getString(mCursor.getColumnIndex(COLUMN_TITLE)));
-
-                callback.onItemClick(holder.image, adapterPosition, mCursor);
-            }
-        });*/
     }
 
     @Override
@@ -131,6 +113,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
         //check if this is a valid cursor, then update the cursor
         if (c != null) {
+            Log.e(JsonKeys.TAG, "Data changed");
             this.notifyDataSetChanged();
         }
         return temp;

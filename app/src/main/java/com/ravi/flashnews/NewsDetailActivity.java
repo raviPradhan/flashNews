@@ -101,11 +101,13 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                         @Override
                         public void onError(Exception e) {
                             supportStartPostponedEnterTransition();
+                            favButton.setVisibility(View.VISIBLE);
                         }
 
                         @Override
                         public void onSuccess() {
                             supportStartPostponedEnterTransition();
+                            favButton.setVisibility(View.VISIBLE);
                         }
                     });
             Spannable wordtoSpan = new SpannableString(getString(R.string.read_full));
