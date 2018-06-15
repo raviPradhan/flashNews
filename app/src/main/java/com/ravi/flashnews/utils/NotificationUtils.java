@@ -68,7 +68,7 @@ public class NotificationUtils {
                             int[] appWidgetIds = appWidgetManager.
                                     getAppWidgetIds(
                                             new ComponentName(context, NewsWidgetProvider.class));
-                            Log.e(JsonKeys.TAG, "updating widget after new data pulled");
+//                            Log.e(JsonKeys.TAG, "updating widget after new data pulled");
                             NewsWidgetProvider.updateNewsWidgets(context, appWidgetManager, appWidgetIds);
 //                            WidgetUpdateService.startActionUpdateNewsWidget(context);
                         }
@@ -84,13 +84,13 @@ public class NotificationUtils {
                         }
                     });
         } else {
-            Log.e(JsonKeys.TAG, "Did not receive any news");
+//            Log.e(JsonKeys.TAG, "Did not receive any news");
         }
     }
 
     private static void generateNotification(Context context, RemoteViews customView, PendingIntent pendingIntent) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Log.e(JsonKeys.TAG, "Notification generation initiated");
+//        Log.e(JsonKeys.TAG, "Notification generation initiated");
         // The user-visible name of the channel.
         CharSequence name = context.getString(R.string.app_name);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

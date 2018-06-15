@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private InterstitialAd mInterstitialAd;
     private PreferenceUtils preferenceUtils;
-    private boolean isResumed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int[] appWidgetIds = appWidgetManager.
                 getAppWidgetIds(
                         new ComponentName(this, NewsWidgetProvider.class));
-        Log.e(JsonKeys.TAG, "updating widget from main activity");
+//        Log.e(JsonKeys.TAG, "updating widget from main activity");
         NewsWidgetProvider.updateNewsWidgets(this, appWidgetManager, appWidgetIds);
     }
 
@@ -266,13 +265,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // get test ads on a physical device. e.g.
         // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        mInterstitialAd.setAdUnitId(BuildConfig.INTERSTITIAL_AD_KEY);
+        AdRequest.Builder adRequest = new AdRequest.Builder();
+//        adRequest.addTestDevice("6D766C0BC9EA4AF4332E3DB4F1803E2D");
+        mInterstitialAd.loadAd(adRequest.build());
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
                 // Load the next interstitial.
                 mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+//                Log.e(JsonKeys.TAG, "Ad has loaded");
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+//                Log.e(JsonKeys.TAG, "AD ERROR " + i);
             }
         });
     }
@@ -297,21 +310,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int count = preferenceUtils.getIntData(JsonKeys.TO_SHOW_AD);
         // increment the number of times the app has opened its main activity
         preferenceUtils.setData(JsonKeys.TO_SHOW_AD, ++count);
-        Log.e(JsonKeys.TAG, "" + count);
-        if (isResumed) {
-            if (mInterstitialAd.isLoaded()) {
-                /* show add if loaded and the count is exactly divisible by 5
-                 * this shows ad after every 5 resumes of the app as the count is being incremented twice
-                 * in every resume. This logic can be changed any time accordingly
-                 * */
-                if (count % 5 == 0)
-                    mInterstitialAd.show();
-            } else {
-                MessageUtils.showToast(this, "The advertisement could not be loaded.");
-            }
-            isResumed = false;
-        } else
-            isResumed = true;
+//        Log.e(JsonKeys.TAG, "" + count);
+        /* this shows ad after every 5 resumes of the app in every resume.
+         * This logic can be changed any time accordingly
+         * */
+        if (count % 2 == 0) {
+            showAd();
+        }
+    }
+
+    private void showAd() {
+        // show add if loaded
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            MessageUtils.showToast(this, "The advertisement could not be loaded.");
+            loadAd();
+        }
     }
 
     @Override

@@ -101,11 +101,13 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                         @Override
                         public void onError(Exception e) {
                             supportStartPostponedEnterTransition();
+                            favButton.setVisibility(View.VISIBLE);
                         }
 
                         @Override
                         public void onSuccess() {
                             supportStartPostponedEnterTransition();
+                            favButton.setVisibility(View.VISIBLE);
                         }
                     });
             Spannable wordtoSpan = new SpannableString(getString(R.string.read_full));
@@ -166,7 +168,7 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                             MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
                         }
                     } catch (UnsupportedOperationException uex) {
-                        uex.printStackTrace();
+//                        uex.printStackTrace();
                         MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
                     }
 
@@ -189,7 +191,7 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                             MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+//                        ex.printStackTrace();
                         MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
                     }
                 }

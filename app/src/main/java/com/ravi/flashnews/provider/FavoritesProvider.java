@@ -71,7 +71,7 @@ public class FavoritesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
-                Log.e(JsonKeys.TAG, "Cursor Size " + retCursor.getCount());
+//                Log.e(JsonKeys.TAG, "Cursor Size " + retCursor.getCount());
                 break;
 
             // Default exception
@@ -130,7 +130,7 @@ public class FavoritesProvider extends ContentProvider {
                 // Get the movie ID from the URI path
                 String title = uri.getPathSegments().get(1);
                 tasksDeleted = db.delete(TABLE_NAME, COLUMN_TITLE + "=?", new String[]{title});
-                Log.e(JsonKeys.TAG, uri.getPathSegments().get(1) + " " + tasksDeleted);
+//                Log.e(JsonKeys.TAG, uri.getPathSegments().get(1) + " " + tasksDeleted);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

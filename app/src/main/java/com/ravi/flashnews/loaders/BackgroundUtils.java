@@ -19,7 +19,7 @@ public class BackgroundUtils {
     public static ArrayList<News> getDataFromBackend(String url){
         try {
             String response = NetworkUtils.getJson(url);
-            Log.e(JsonKeys.TAG, response);
+//            Log.e(JsonKeys.TAG, response);
             JSONObject jsonResponse = new JSONObject(response);
             ArrayList<News> list = new ArrayList<>();
             if (HelperFunctions.isValidResponse(jsonResponse)) {
@@ -39,9 +39,9 @@ public class BackgroundUtils {
                 return list;
             }
         } catch (IOException ioEx) {
-            ioEx.printStackTrace();
+//            ioEx.printStackTrace();
         } catch (JSONException jex) {
-            jex.printStackTrace();
+//            jex.printStackTrace();
         }
         return null;
     }
