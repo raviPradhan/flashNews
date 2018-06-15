@@ -62,6 +62,8 @@ public class NewsWidgetProvider extends AppWidgetProvider {
 
                     @Override
                     public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                        views.setTextViewText(R.id.tv_widget_title, pref.getData(JsonKeys.TITLE_KEY));
+                        views.setTextViewText(R.id.tv_widget_date, pref.getData(JsonKeys.PUBLISHED_AT_KEY));
                     }
 
                     @Override
