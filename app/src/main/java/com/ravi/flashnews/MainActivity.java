@@ -266,7 +266,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(BuildConfig.INTERSTITIAL_AD_KEY);
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        AdRequest.Builder adRequest = new AdRequest.Builder();
+//        adRequest.addTestDevice("6D766C0BC9EA4AF4332E3DB4F1803E2D");
+        mInterstitialAd.loadAd(adRequest.build());
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
@@ -312,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* this shows ad after every 5 resumes of the app in every resume.
          * This logic can be changed any time accordingly
          * */
-        if (count % 5 == 0) {
+        if (count % 2 == 0) {
             showAd();
         }
     }
