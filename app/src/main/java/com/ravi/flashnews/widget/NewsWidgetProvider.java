@@ -24,7 +24,7 @@ public class NewsWidgetProvider extends AppWidgetProvider {
         //Start the intent service update widget action, the service takes care of updating the widgets UI
 //        Log.v(Constants.TAG, "Updating widget provider onUpdate()");
 //        WidgetUpdateService.startActionUpdateNewsWidget(context);
-        Log.e(JsonKeys.TAG, "onUpdate Called on its own");
+//        Log.e(JsonKeys.TAG, "onUpdate Called on its own");
         updateNewsWidgets(context, appWidgetManager, appWidgetIds);
     }
 
@@ -37,7 +37,7 @@ public class NewsWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         RemoteViews rv = getNewsRemoteView(context);
-        Log.e(JsonKeys.TAG, "Widget updated");
+//        Log.e(JsonKeys.TAG, "Widget updated");
         appWidgetManager.updateAppWidget(appWidgetId, rv);
     }
 

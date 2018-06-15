@@ -59,7 +59,7 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
         favRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         progress.setVisibility(View.VISIBLE);
-        Log.e(JsonKeys.TAG, "Getting all favorites");
+//        Log.e(JsonKeys.TAG, "Getting all favorites");
         getSupportLoaderManager().initLoader(100, null, this);
     }
 
@@ -79,10 +79,10 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
             if (adapter == null) { // if adapter for favorites was not created before
                 adapter = new FavoritesAdapter(this);
                 favRecycler.setAdapter(adapter);
-                Log.e(JsonKeys.TAG, "new adapter data");
+//                Log.e(JsonKeys.TAG, "new adapter data");
                 adapter.swapCursor(data);
             } else {
-                Log.e(JsonKeys.TAG, "refreshing data");
+//                Log.e(JsonKeys.TAG, "refreshing data");
                 adapter.swapCursor(data);
             }
         }

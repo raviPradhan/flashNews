@@ -12,3 +12,6 @@ Download the Flash News App today and never get out of touch with the world agai
 *RUNNING THE APP*
 1. Get Your API KEY generated from the https://newsapi.org/ to get the news.
 2. Get your API key generated from https://www.google.com/admob/ and also generate interstitial ad unit or you can use testing ad unit id.
+3. APP folder contains the keystore to generate a release build.
+   Keystore config: password-: udacity2018, alias-: fn
+4. APP folder contains a release folder which has a release APK.

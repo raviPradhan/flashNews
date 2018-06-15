@@ -113,7 +113,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
         //check if this is a valid cursor, then update the cursor
         if (c != null) {
-            Log.e(JsonKeys.TAG, "Data changed");
+//            Log.e(JsonKeys.TAG, "Data changed");
             this.notifyDataSetChanged();
         }
         return temp;

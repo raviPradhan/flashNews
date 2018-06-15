@@ -85,14 +85,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
 
-            Log.e(JsonKeys.TAG, "display name: " + acct.getDisplayName());
+//            Log.e(JsonKeys.TAG, "display name: " + acct.getDisplayName());
 
             String personName = acct.getDisplayName();
             String personPhotoUrl = acct.getPhotoUrl().toString();
             String email = acct.getEmail();
 
-            Log.e(JsonKeys.TAG, "Name: " + personName + ", email: " + email
-                    + ", Image: " + personPhotoUrl);
+            /*Log.e(JsonKeys.TAG, "Name: " + personName + ", email: " + email
+                    + ", Image: " + personPhotoUrl);*/
             startActivity(new Intent(this, MainActivity.class));
             finish();
         } else {

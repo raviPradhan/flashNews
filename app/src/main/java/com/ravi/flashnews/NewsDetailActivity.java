@@ -168,7 +168,7 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                             MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
                         }
                     } catch (UnsupportedOperationException uex) {
-                        uex.printStackTrace();
+//                        uex.printStackTrace();
                         MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_removal_error));
                     }
 
@@ -191,7 +191,7 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
                             MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+//                        ex.printStackTrace();
                         MessageUtils.showSnackMessage(coordinatorLayout, getString(R.string.favourites_add_error));
                     }
                 }

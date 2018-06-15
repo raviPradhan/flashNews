@@ -45,8 +45,8 @@ public class GetFavoritesLoader extends AsyncTaskLoader<Cursor> {
                     null);
 
         } catch (Exception e) {
-            Log.e("FAVORITES LOADER", "Failed to asynchronously load data.");
-            e.printStackTrace();
+//            Log.e("FAVORITES LOADER", "Failed to asynchronously load data.");
+//            e.printStackTrace();
             return null;
         }
     }

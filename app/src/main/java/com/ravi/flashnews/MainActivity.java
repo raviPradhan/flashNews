@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int[] appWidgetIds = appWidgetManager.
                 getAppWidgetIds(
                         new ComponentName(this, NewsWidgetProvider.class));
-        Log.e(JsonKeys.TAG, "updating widget from main activity");
+//        Log.e(JsonKeys.TAG, "updating widget from main activity");
         NewsWidgetProvider.updateNewsWidgets(this, appWidgetManager, appWidgetIds);
     }
 
@@ -279,13 +279,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Log.e(JsonKeys.TAG, "Ad has loaded");
+//                Log.e(JsonKeys.TAG, "Ad has loaded");
             }
 
             @Override
             public void onAdFailedToLoad(int i) {
                 super.onAdFailedToLoad(i);
-                Log.e(JsonKeys.TAG, "AD ERROR " + i);
+//                Log.e(JsonKeys.TAG, "AD ERROR " + i);
             }
         });
     }
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int count = preferenceUtils.getIntData(JsonKeys.TO_SHOW_AD);
         // increment the number of times the app has opened its main activity
         preferenceUtils.setData(JsonKeys.TO_SHOW_AD, ++count);
-        Log.e(JsonKeys.TAG, "" + count);
+//        Log.e(JsonKeys.TAG, "" + count);
         /* this shows ad after every 5 resumes of the app in every resume.
          * This logic can be changed any time accordingly
          * */

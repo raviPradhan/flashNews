@@ -18,7 +18,7 @@ public class HelperFunctions {
             SimpleDateFormat showFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
             return showFormat.format(complexDate);
         } catch (ParseException pex) {
-            pex.printStackTrace();
+//            pex.printStackTrace();
         }
         return "";
     }
