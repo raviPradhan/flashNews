@@ -3,8 +3,10 @@ package com.ravi.flashnews.loaders;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
+import android.util.Log;
 
 import com.ravi.flashnews.model.News;
+import com.ravi.flashnews.utils.JsonKeys;
 
 import java.util.ArrayList;
 
@@ -19,10 +21,13 @@ public class NewsLoader extends AsyncTaskLoader<ArrayList<News>> {
 
     @Override
     protected void onStartLoading() {
-        if (resultList != null)
+        if (resultList != null) {
+            Log.e(JsonKeys.TAG, "not loading new");
             deliverResult(resultList);
-        else
+        } else {
             forceLoad();
+            Log.e(JsonKeys.TAG, "loading new");
+        }
     }
 
     @Override

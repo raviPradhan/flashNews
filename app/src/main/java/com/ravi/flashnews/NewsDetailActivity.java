@@ -227,9 +227,9 @@ public class NewsDetailActivity extends AppCompatActivity implements View.OnClic
         return super.onOptionsItemSelected(item);
     }
 
-    /*@Override
+    @Override
     public void onBackPressed() {
         favButton.setVisibility(View.GONE);
         super.onBackPressed();
-    }*/
+    }
 }

@@ -28,17 +28,13 @@
             android:name=".LoginActivity"
             android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".MainActivity" />
 
         <activity
-            android:name=".FavoritesActivity"
-            android:screenOrientation="portrait" />
+            android:name=".FavoritesActivity" />
 
         <activity
-            android:name=".NewsDetailActivity"
-            android:screenOrientation="portrait" />
+            android:name=".NewsDetailActivity" />
 
         <provider
             android:name="com.ravi.flashnews.provider.FavoritesProvider"

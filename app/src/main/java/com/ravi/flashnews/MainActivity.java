@@ -6,10 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,7 +44,7 @@ import com.google.android.gms.common.api.Status;
 import com.pnikosis.materialishprogress.ProgressWheel;
 import com.ravi.flashnews.adapter.NewsAdapter;
 import com.ravi.flashnews.background.NewsJobService;
-import com.ravi.flashnews.loaders.NewsLoader;
+import com.ravi.flashnews.loaders.BackgroundUtils;
 import com.ravi.flashnews.model.News;
 import com.ravi.flashnews.utils.ItemClickListener;
 import com.ravi.flashnews.utils.JsonKeys;
@@ -107,21 +109,31 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
+
         newsList = new ArrayList<>();
         newsRecycler.setHasFixedSize(true);
         newsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        try {
+            if (savedInstanceState != null) {
+                Parcelable state = savedInstanceState.getParcelable("rotation");
+                newsRecycler.getLayoutManager().onRestoreInstanceState(state);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         adapter = new NewsAdapter(newsList, this);
         newsRecycler.setAdapter(adapter);
-
         if (getIntent().getExtras() != null) {
             // if news list is set in extras
             // mostly coming from notification
-            newsList.addAll(getIntent().<News>getParcelableArrayListExtra(JsonKeys.ARTICLES_KEY));
-            adapter.notifyDataSetChanged();
+            if (getIntent().hasExtra(JsonKeys.ARTICLES_KEY)) {
+                newsList.addAll(getIntent().<News>getParcelableArrayListExtra(JsonKeys.ARTICLES_KEY));
+                adapter.notifyDataSetChanged();
+            }
         } else {
             progress.setVisibility(View.VISIBLE);
         }
-        startLoader();
+        startLoader(false);
         refreshLayout.setOnRefreshListener(this);
 
         loadAd();
@@ -184,13 +196,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             progress.setVisibility(View.VISIBLE);
 
         refreshLayout.setRefreshing(false);
-        startLoader();
+        startLoader(true);
     }
 
-    private void startLoader() {
+    private void startLoader(boolean isRestart) {
         emptyText.setVisibility(View.GONE);
         if (NetworkUtils.isInternetConnected(this)) {
-            getSupportLoaderManager().restartLoader(1, getBundle(), this);
+            if (isRestart)
+                getSupportLoaderManager().restartLoader(1, getBundle(), this);
+            else
+                getSupportLoaderManager().initLoader(1, getBundle(), this);
         } else {
             progress.setVisibility(View.GONE);
             showMessage(getString(R.string.no_internet));
@@ -314,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         /* this shows ad after every 5 resumes of the app in every resume.
          * This logic can be changed any time accordingly
          * */
-        if (count % 2 == 0) {
+        if (count % 5 == 0) {
             showAd();
         }
     }
@@ -376,7 +391,45 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putParcelable("rotation", newsRecycler.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         isClientConnected = false;
+    }
+
+    private static class NewsLoader extends AsyncTaskLoader<ArrayList<News>> {
+        private ArrayList<News> resultList;
+        private String url;
+
+        NewsLoader(Context context, String url) {
+            super(context);
+            this.url = url;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            if (resultList != null) {
+//                Log.e(JsonKeys.TAG, "not loading new");
+                deliverResult(resultList);
+            } else {
+                forceLoad();
+//                Log.e(JsonKeys.TAG, "loading new");
+            }
+        }
+
+        @Override
+        public ArrayList<News> loadInBackground() {
+            return BackgroundUtils.getDataFromBackend(url);
+        }
+
+        @Override
+        public void deliverResult(@Nullable ArrayList<News> data) {
+            resultList = data;
+            super.deliverResult(data);
+        }
     }
 }

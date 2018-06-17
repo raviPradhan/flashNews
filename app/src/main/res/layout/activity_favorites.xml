@@ -19,13 +19,13 @@
         android:id="@+id/rv_fav_newsRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/margin_10"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.pnikosis.materialishprogress.ProgressWheel
         android:id="@+id/pb_fav_progress"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="@dimen/progress_size"
+        android:layout_height="@dimen/progress_size"
         android:layout_gravity="center"
         android:visibility="gone"
         app:matProg_barColor="@color/colorPrimary"
@@ -36,8 +36,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginEnd="@dimen/margin_20"
+        android:layout_marginStart="@dimen/margin_20"
         android:gravity="center"
         android:textColor="@color/colorSecondaryText"
         android:textSize="@dimen/text14"

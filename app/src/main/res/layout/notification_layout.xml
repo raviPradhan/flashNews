@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
     android:layout_width="match_parent"
@@ -30,6 +31,7 @@
         android:fontFamily="@font/montserrat_medium"
         android:textColor="@color/colorPrimaryText"
         android:textSize="@dimen/text14"
+        app:fontFamily="@font/montserrat_medium"
         tools:text="Arun Jaitley returns home after kidney transplant" />
 
     <TextView
@@ -42,7 +44,9 @@
         android:layout_alignParentRight="true"
         android:layout_marginEnd="15dp"
         android:layout_marginRight="15dp"
+        android:fontFamily="@font/montserrat_light"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/text12"
+        app:fontFamily="@font/montserrat_light"
         tools:text="30 May 2018" />
 </RelativeLayout>

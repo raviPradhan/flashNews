@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_widget_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/rl_widget_parent"
     android:background="@android:color/white">
 
     <ImageView
@@ -18,9 +19,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/iv_widget_image"
         android:background="@android:color/white"
+        android:fontFamily="@font/montserrat_regular"
         android:padding="@dimen/widget_margin"
         android:textColor="@color/colorPrimaryText"
         android:textSize="@dimen/text14"
+        app:fontFamily="@font/montserrat_regular"
         tools:text="Trump gets dumped by hooker" />
 
     <TextView
@@ -37,6 +40,7 @@
         android:paddingStart="@dimen/widget_margin"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/text12"
+        app:fontFamily="@font/montserrat_regular"
         tools:text="30 May 2018" />
 
 </RelativeLayout>

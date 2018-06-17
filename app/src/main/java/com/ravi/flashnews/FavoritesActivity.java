@@ -3,6 +3,8 @@ package com.ravi.flashnews;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -57,6 +59,17 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
 
         favRecycler.setHasFixedSize(true);
         favRecycler.setLayoutManager(new LinearLayoutManager(this));
+        try {
+            if (savedInstanceState != null) {
+                Log.e(JsonKeys.TAG, "restoring state");
+                Parcelable state = savedInstanceState.getParcelable("rotation");
+                favRecycler.getLayoutManager().onRestoreInstanceState(state);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        adapter = new FavoritesAdapter(this);
+        favRecycler.setAdapter(adapter);
 
         progress.setVisibility(View.VISIBLE);
 //        Log.e(JsonKeys.TAG, "Getting all favorites");
@@ -77,8 +90,6 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
             emptyText.setText(R.string.empty_favorites);
         } else {
             if (adapter == null) { // if adapter for favorites was not created before
-                adapter = new FavoritesAdapter(this);
-                favRecycler.setAdapter(adapter);
 //                Log.e(JsonKeys.TAG, "new adapter data");
                 adapter.swapCursor(data);
             } else {
@@ -111,6 +122,12 @@ public class FavoritesActivity extends AppCompatActivity implements LoaderManage
     public boolean onOptionsItemSelected(MenuItem item) {
         onBackAction();
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putParcelable("rotation", favRecycler.getLayoutManager().onSaveInstanceState());
     }
 
     @Override

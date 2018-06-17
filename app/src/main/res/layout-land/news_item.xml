@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/margin_10"
+    android:layout_marginEnd="@dimen/margin_30"
+    android:layout_marginStart="@dimen/margin_30"
+    android:layout_marginTop="@dimen/margin_30"
     app:cardCornerRadius="4dp"
     app:cardUseCompatPadding="true">
 

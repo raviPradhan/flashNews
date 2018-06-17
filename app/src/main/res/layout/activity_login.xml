@@ -10,8 +10,8 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginEnd="@dimen/margin_20"
+        android:layout_marginStart="@dimen/margin_20"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -20,8 +20,8 @@
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/iv_login_logo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/logo_size"
+            android:layout_height="@dimen/logo_size"
             android:layout_gravity="center"
             android:contentDescription="@string/logo_credit"
             android:src="@drawable/ic_launcher" />
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/margin_10"
             android:fontFamily="@font/montserrat_medium"
             android:text="@string/welcome"
             android:textColor="@color/colorPrimaryText"
@@ -41,9 +41,6 @@
             android:id="@+id/btn_sign_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp" />
+            android:layout_margin="@dimen/margin_20" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
